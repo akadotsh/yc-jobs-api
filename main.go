@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 
@@ -8,11 +9,12 @@ import (
 )
 
 type Job struct {
- name string;
- logo string;
- role string
-//  location string
-}
+	Name string `json:"name"`;
+	Logo string `json:"logo"`;
+	Role string `json:"role"`
+    Location string `json:"location"`
+   }
+   
 
 var ycJobs []Job
 
@@ -37,11 +39,10 @@ func main() {
 	c.OnHTML("ul.space-y-2.overflow-hidden > li", func(e *colly.HTMLElement) {
 		post := Job{};
 
-		post.name = e.ChildText("span.block.font-bold");
-        post.logo = e.ChildAttr("img", "src");
-		post.role = e.ChildText("div>a.font-semibold.text-linkColor")
-		
-		// fmt.Println("location",e.ChildText("div.flex.flex-row.flex-wrap.justify-center"))
+		post.Name = e.ChildText("span.block.font-bold");
+        post.Logo = e.ChildAttr("img", "src");
+		post.Role = e.ChildText("div>a.font-semibold.text-linkColor")
+		post.Location = e.ChildText("div.flex.flex-row.flex-wrap.justify-center > :nth-child(2)")
 
         ycJobs = append(ycJobs, post)
 	})
@@ -54,7 +55,9 @@ func main() {
 		log.Fatal("Error visiting initial URL:", err)
 	}
 
-	fmt.Println(ycJobs)
+	_j,_:= json.MarshalIndent(ycJobs, "", "  ")
+
+     fmt.Println(string(_j))  
 }
 
 
