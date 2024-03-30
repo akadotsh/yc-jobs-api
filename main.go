@@ -5,7 +5,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/akadotsh/api/api"
+	"github.com/akadotsh/yc-jobs-api/api"
 	"github.com/joho/godotenv"
 )
 
