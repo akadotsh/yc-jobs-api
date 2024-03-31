@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/akadotsh/yc-jobs-api/utils"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/cors"
@@ -18,11 +19,13 @@ type Server struct {
 
 
 type Job struct {
+	ID string `json:"id"`;
 	Name string `json:"name"`;
 	Logo string `json:"logo"`;
 	Role string `json:"role"`
     Location string `json:"location"`
-   }
+	CompanyUrl string `json:"companyUrl"`
+}
    
    
 
@@ -44,7 +47,7 @@ func (s *Server) Start() error {
 		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
 		ExposedHeaders:   []string{"Link"},
 		AllowCredentials: true,
-		MaxAge:           300, // Maximum value not ignored by any of major browsers
+		MaxAge:           300, 
 	}));
 
 	router.Get("/latest",s.handleGetLatestJobs)
@@ -62,11 +65,12 @@ func (s *Server) handleGetLatestJobs(w http.ResponseWriter, r * http.Request){
 	c.OnHTML("ul.space-y-2.overflow-hidden > li", func(e *colly.HTMLElement) {
 		post := Job{};
 
+		post.ID = utils.ParseId(utils.DecodeUrl(e.ChildAttr("a.ycdc-btn","href")))
 		post.Name = e.ChildText("span.block.font-bold");
         post.Logo = e.ChildAttr("img", "src");
 		post.Role = e.ChildText("div>a.font-semibold.text-linkColor")
 		post.Location = e.ChildText("div.flex.flex-row.flex-wrap.justify-center > :nth-child(2)")
-
+        post.CompanyUrl = e.ChildAttr("a", "href")
         ycJobs = append(ycJobs, post)
 	})
 	
